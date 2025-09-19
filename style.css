@@ -1,0 +1,309 @@
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .header h1 {
+        color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .level-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        justify-content: center;
+    }
+
+    .level-btn {
+        padding: 12px 24px;
+        border: 2px solid #667eea;
+        background: transparent;
+        color: #667eea;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .level-btn.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .add-exercise {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .exercise-input {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+    .exercise-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .add-btn {
+        width: 60px;
+        height: 60px;
+        border: none;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .add-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .add-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .exercises-list {
+        margin-bottom: 30px;
+    }
+
+    .exercise-item {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .exercise-info {
+        flex: 1;
+    }
+
+    .exercise-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .sets-reps {
+        font-size: 1rem;
+        color: #667eea;
+        font-weight: 500;
+    }
+
+    .exercise-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .start-btn, .check-btn, .delete-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .start-btn {
+        background: linear-gradient(135deg, #2ed573, #1e90ff);
+        color: white;
+    }
+
+    .start-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .check-btn {
+        background: linear-gradient(135deg, #2ed573, #00d2d3);
+        color: white;
+        font-size: 18px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .check-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .delete-btn {
+        background: #ff4757;
+        color: white;
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    .delete-btn:hover {
+        background: #ff3838;
+        transform: scale(1.05);
+    }
+
+    .workout-session {
+        display: none;
+        text-align: center;
+    }
+
+    .workout-session.active {
+        display: block;
+    }
+
+    .current-exercise {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+
+    .current-exercise h2 {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .current-exercise .sets-reps {
+        font-size: 1.5rem;
+        color: #fff;
+        opacity: 0.9;
+    }
+
+    .session-controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .session-btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .complete-btn {
+        background: linear-gradient(135deg, #2ed573, #00d2d3);
+        color: white;
+    }
+
+    .complete-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .end-btn {
+        background: #ff4757;
+        color: white;
+    }
+
+    .end-btn:hover {
+        background: #ff3838;
+        transform: scale(1.05);
+    }
+
+    .progress {
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-item {
+        background: #f8f9fa;
+        border: 2px dashed #ddd;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 40px 20px;
+    }
+
+    .workout-complete {
+        display: none;
+        text-align: center;
+        padding: 40px;
+    }
+
+    .workout-complete.active {
+        display: block;
+    }
+
+    .workout-complete h2 {
+        color: #2ed573;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .restart-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .restart-btn:hover {
+        transform: scale(1.05);
+    }

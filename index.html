@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enter Gemini API Key</title>
+  <style>
+    body { display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; font-family:Arial, sans-serif; }
+    input { padding:8px; width:250px; margin:10px; }
+    button { padding:8px 16px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+  <h2>Enter your Gemini API Key</h2>
+  <input type="password" id="apiKeyInput" placeholder="Paste API Key here">
+  <button onclick="saveKey()">Submit</button>
+
+  <script src="api.js"></script>
+  <script>
+    // Check if key already exists and is not empty
+    const existingKey = localStorage.getItem("GEMINI_API_KEY");
+    if (existingKey && existingKey.trim() !== '') {
+      window.location.href = "home.html";
+    }
+
+    function saveKey() {
+      const key = document.getElementById("apiKeyInput").value.trim();
+      if (!key) return alert("Please enter a valid API key.");
+
+      // Save the key
+      localStorage.setItem("GEMINI_API_KEY", key);
+
+      // Redirect to home.html
+      window.location.href = "home.html";
+    }
+  </script>
+
+</body>
+</html>

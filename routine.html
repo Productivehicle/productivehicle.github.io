@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Routine Maker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
+
+  <!-- Main Container -->
+  <div class="w-full max-w-md p-6">
+    
+    <!-- Task List -->
+    <div id="taskList" class="space-y-3"></div>
+
+    <!-- Plus Button -->
+    <button id="addTaskBtn" 
+      class="mt-6 w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-2xl mx-auto">
+      +
+    </button>
+
+    <!-- Generate Button -->
+    <button id="generateBtn" 
+      class="mt-6 w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 font-semibold">
+      Generate Routine
+    </button>
+
+    <!-- Routine Card (hidden initially) -->
+    <div id="routineCard" class="hidden mt-6 p-6 rounded-2xl shadow-lg text-center relative">
+      <div id="routineContent"></div>
+      <button id="downloadBtn" 
+        class="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold">
+        Download as Image
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Script -->
+  <script src="api.js"></script>
+  <script>
+    // Wait for page to load completely
+    document.addEventListener('DOMContentLoaded', function() {
+      const taskList = document.getElementById("taskList");
+      const addTaskBtn = document.getElementById("addTaskBtn");
+      const generateBtn = document.getElementById("generateBtn");
+      const routineCard = document.getElementById("routineCard");
+      const routineContent = document.getElementById("routineContent");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      // Use the same API key as your workout project
+      const apiKey = GEMINI_API_KEY;
+
+      const backgrounds = [
+        "https://avatars.mds.yandex.net/i?id=4a1f4cb0c6559f57d98b4bad9bdcbef881eb2a4b-15410706-images-thumbs&n=13",
+        "https://avatars.mds.yandex.net/i?id=b790e8b1a6174bd7383faa8ba002094732acfff9-8343045-images-thumbs&n=13",
+        "https://avatars.mds.yandex.net/i?id=795d802406f20c01c851a4d445083aad824fee13-11944133-images-thumbs&n=13",
+        "https://avatars.mds.yandex.net/i?id=e5fba033a4b29075cbe28eea39dc389b3c4aeff8-9068811-images-thumbs&n=13"
+      ];
+
+      let tasks = [];
+
+      // Add task handler - WRAPPED IN DOMContentLoaded
+      addTaskBtn.addEventListener("click", () => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex space-x-2";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Task...";
+        input.className = "flex-1 px-3 py-2 rounded bg-gray-800 text-white";
+
+        const timeInput = document.createElement("input");
+        timeInput.type = "text";
+        timeInput.placeholder = "Time (optional)";
+        timeInput.className = "w-28 px-3 py-2 rounded bg-gray-800 text-white";
+
+        wrapper.appendChild(input);
+        wrapper.appendChild(timeInput);
+        taskList.appendChild(wrapper);
+      });
+
+      // Generate routine - EXACT same format as workout project
+      generateBtn.addEventListener("click", async () => {
+        tasks = [];
+        taskList.querySelectorAll("div").forEach(div => {
+          const inputs = div.querySelectorAll("input");
+          if (inputs[0] && inputs[0].value.trim()) {
+            tasks.push({
+              task: inputs[0].value.trim(),
+              time: inputs[1] ? inputs[1].value.trim() || null : null
+            });
+          }
+        });
+
+        if (tasks.length === 0) {
+          alert("Please add at least one task!");
+          return;
+        }
+
+        const prompt = `Format this routine as a clean list. For each task, show: Task name, time (if provided), and one short motivational phrase. Keep it simple and clean.
+
+Tasks: ${JSON.stringify(tasks)}
+
+Format exactly like this:
+🌅 Wake Up - 6:00 AM
+"Rise and shine, champion!"
+
+💪 Workout - 30 mins  
+"Your body is your temple!"
+
+Return ONLY the formatted list, nothing else.`;
+
+        try {
+          // EXACT same request format as workout project
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  contents: [{
+                      parts: [{
+                          text: prompt
+                      }]
+                  }],
+                  generationConfig: {
+                      temperature: 0.1, // Lower temperature for more consistent formatting
+                      maxOutputTokens: 300,
+                  }
+              })
+          });
+
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const generatedText = data.candidates[0].content.parts[0].text.trim();
+
+          console.log("Gemini Response:", generatedText);
+
+          // Set random background
+          const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+          routineCard.style.backgroundImage = `url('${bg}')`;
+          routineCard.style.backgroundSize = "cover";
+          routineCard.style.backgroundPosition = "center";
+
+          routineContent.innerHTML = `
+            <div class="bg-gradient-to-br from-black/80 to-gray-900/90 p-8 rounded-2xl border border-white/20 backdrop-blur-sm">
+              <h2 class="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent" 
+                  style="font-family: 'Playfair Display', serif; text-shadow: 0 0 20px rgba(255,255,255,0.3);">
+                ✨ Your Daily Routine ✨
+              </h2>
+              <div class="space-y-4 text-white font-medium leading-relaxed" 
+                   style="font-family: 'Inter', sans-serif; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                ${generatedText.split('\n').map(line => {
+                  if (line.trim()) {
+                    if (line.includes('"')) {
+                      // Style for quotes (motivational text)
+                      return `<div class="text-blue-200 italic text-lg pl-6 opacity-90" style="font-weight: 500;">${line}</div>`;
+                    } else {
+                      // Style for main tasks
+                      return `<div class="text-xl font-semibold text-white mb-2" style="letter-spacing: 0.5px;">${line}</div>`;
+                    }
+                  }
+                  return '<div class="h-2"></div>'; // spacing
+                }).join('')}
+              </div>
+            </div>`;
+
+          routineCard.classList.remove("hidden");
+
+        } catch (error) {
+          console.error('Error generating routine:', error);
+          alert('Error generating routine. Please try again.');
+        }
+      });
+
+      // Download card as image - Fixed to capture only the routine card
+      downloadBtn.addEventListener("click", () => {
+        // Hide the download button temporarily for a cleaner image
+        downloadBtn.style.display = 'none';
+        
+        html2canvas(routineCard, {
+          backgroundColor: null,
+          scale: 4, // Much higher quality (was 2, now 4)
+          logging: false,
+          useCORS: true,
+          width: routineCard.offsetWidth,
+          height: routineCard.offsetHeight,
+          scrollX: 0,
+          scrollY: 0
+        }).then(canvas => {
+          // Show the button again
+          downloadBtn.style.display = 'block';
+          
+          const link = document.createElement("a");
+          link.download = "my-routine.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        }).catch(err => {
+          downloadBtn.style.display = 'block';
+          console.error('Download failed:', err);
+          alert('Download failed. Please try again.');
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

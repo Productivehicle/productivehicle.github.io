@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Example Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="voc.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>📝 Word Examples Generator</h1>
+  <p class="subtitle">Generate sentences from your custom universes</p>
+  
+  <!-- Word Input Section -->
+  <div class="input-section">
+    <input type="text" id="wordInput" placeholder="Enter a word...">
+    <button id="searchBtn" onclick="generateExamples()">Generate Examples</button>
+    <div class="error-message" id="errorMessage"></div>
+  </div>
+  
+  <!-- Active Universes Section -->
+  <div class="current-universes">
+    <div class="universes-header">
+      <div class="universes-title">Active Universes</div>
+      <button class="add-universe-btn" onclick="toggleAddUniverse()" title="Add Universe">+</button>
+    </div>
+    <div class="add-universe-input" id="addUniverseInput">
+      <input type="text" id="newUniverseInput" placeholder="Enter universe name...">
+      <button onclick="addUniverse()">Add</button>
+      <button class="cancel-btn" onclick="cancelAddUniverse()">Cancel</button>
+    </div>
+    <div class="universe-tags" id="universeTags">
+      <div class="no-universes">No universes added yet</div>
+    </div>
+  </div>
+  
+  <!-- Results Section -->
+  <div id="results" class="results">
+    <div class="placeholder-text">Add some universes and enter a word to generate examples!</div>
+  </div>
+</div>
+
+<script src="api.js">
+</script>
+<script src="voc.js">
+</script>
+
+</body>
+</html>

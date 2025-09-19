@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Workout Session</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Generator</h1>
+            <p>Add exercises and get AI-generated sets & reps</p>
+        </div>
+        
+        <div class="setup-phase" id="setupPhase">
+            <div class="level-selector">
+                <button class="level-btn active" data-level="beginner">Beginner</button>
+                <button class="level-btn" data-level="intermediate">Intermediate</button>
+                <button class="level-btn" data-level="pro">Pro</button>
+            </div>
+            
+            <div class="add-exercise">
+                <input type="text" class="exercise-input" id="exerciseInput" placeholder="Enter exercise name (e.g., Push-ups, Squats, Planks)">
+                <button class="add-btn" id="addBtn">+</button>
+            </div>
+            
+            <div class="exercises-list" id="exercisesList">
+                <div class="empty-state">
+                    Add your first exercise above to get started! 🏋️‍♂️
+                </div>
+            </div>
+        </div>
+        
+        <div class="workout-session" id="workoutSession">
+            <div class="progress" id="progressText"></div>
+            <div class="current-exercise">
+                <h2 id="currentExerciseName">Push-ups</h2>
+                <div class="sets-reps" id="currentExerciseSets">3 sets of 10 reps</div>
+            </div>
+            <div class="session-controls">
+                <button class="session-btn complete-btn" id="completeExerciseBtn">✓ Complete</button>
+                <button class="session-btn end-btn" id="endWorkoutBtn">End Workout</button>
+            </div>
+        </div>
+        
+        <div class="workout-complete" id="workoutComplete">
+            <h2>🎉 Workout Complete!</h2>
+            <p>Great job finishing all your exercises!</p>
+            <button class="restart-btn" id="restartBtn">Start New Workout</button>
+        </div>
+    </div>
+<script src="script.js"></script>
+<script src="api.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .settings-icon {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    
+    .settings-icon:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(45deg);
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    .app-button {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 20px;
+      padding: 40px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+    
+    .app-button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .app-button:active {
+      transform: translateY(-2px);
+    }
+    
+    .button-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+    
+    .button-text {
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .button-grid {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+      }
+      
+      h1 {
+        font-size: 28px;
+        margin-bottom: 30px;
+      }
+      
+      .app-button {
+        min-height: 120px;
+        padding: 30px 20px;
+      }
+      
+      .button-icon {
+        font-size: 40px;
+      }
+      
+      .button-text {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-icon" onclick="openSettings()">⚙️</div>
+
+  <div class="container">
+    
+    <div class="button-grid">
+      <a href="voc.html" class="app-button">
+        <div class="button-icon">📚</div>
+        <div class="button-text">Vocabulary</div>
+      </a>
+      
+      <a href="movie.html" class="app-button">
+        <div class="button-icon">🎬</div>
+        <div class="button-text">Movie Picker</div>
+      </a>
+      
+      <a href="gym.html" class="app-button">
+        <div class="button-icon">💪</div>
+        <div class="button-text">Workout</div>
+      </a>
+      
+      <a href="routine.html" class="app-button">
+        <div class="button-icon">📅</div>
+        <div class="button-text">Routine</div>
+      </a>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // Redirect to index if no API key
+    if (!localStorage.getItem("GEMINI_API_KEY")) {
+      window.location.href = "index.html";
+    }
+
+    function openSettings() {
+      // Clear the API key so user can enter a new one
+      localStorage.removeItem("GEMINI_API_KEY");
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>

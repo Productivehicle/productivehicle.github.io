@@ -1,0 +1,325 @@
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      padding: 20px;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 1.6em;
+      font-weight: 700;
+    }
+    .subtitle {
+      text-align: center; 
+      color: #666;
+      margin-bottom: 32px;
+      font-size: 0.95em;
+    }
+    .input-section {
+      margin-bottom: 24px;
+    }
+    #wordInput {
+      width: 100%;
+      padding: 18px 20px;
+      border: 2px solid #e9ecef;
+      border-radius: 16px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s;
+      background: #fafafa;
+      margin-bottom: 16px;
+    }
+    #wordInput:focus {
+      border-color: #4CAF50;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+    #searchBtn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      min-height: 56px;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+    #searchBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+    #searchBtn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .error-message {
+      color: #d32f2f;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 8px;
+      display: none;
+      background: #ffebee;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ffcdd2;
+    }
+    .current-universes {
+      background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      border: 1px solid #e3f2fd;
+      position: relative;
+    }
+    .universes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .universes-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    .add-universe-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-universe-btn:hover {
+      background: #45a049;
+      transform: scale(1.1);
+    }
+    .universe-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .universe-tag {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      transition: all 0.2s;
+      padding-right: 36px;
+    }
+    .universe-tag:hover {
+  
+      transform: translateY(-1px);
+    }
+    .remove-universe {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .remove-universe:hover {
+      background: #ff3333;
+      transform: scale(1.1);
+    }
+    .no-universes {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .add-universe-input {
+      display: none;
+      margin-top: 16px;
+      gap: 8px;
+    }
+    .add-universe-input.active {
+      display: flex;
+    }
+    .add-universe-input input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .add-universe-input input:focus {
+      border-color: #4CAF50;
+    }
+    .add-universe-input button {
+      padding: 12px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .add-universe-input button:hover {
+      background: #45a049;
+    }
+    .cancel-btn {
+      background: #666 !important;
+    }
+    .cancel-btn:hover {
+      background: #555 !important;
+    }
+    .results {
+      margin-top: 24px;
+    }
+    .result-item {
+      margin-bottom: 24px;
+    }
+    .result-universe {
+      font-weight: 600;
+      color: #2196F3;
+      font-size: 14px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .result-sentence {
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .loading {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      padding: 32px;
+      font-size: 18px;
+    }
+    .placeholder-text {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 32px;
+      font-size: 16px;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+      .container {
+        padding: 24px;
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+      #searchBtn, #wordInput {
+        font-size: 16px;
+        min-height: 52px;
+      }
+      .add-universe-input {
+        flex-direction: column;
+      }
+      .universe-tags {
+        gap: 8px;
+      }
+      .universe-tag {
+        font-size: 13px;
+        padding: 8px 14px;
+        padding-right: 32px;
+      }
+    }
+    
+    /* Minimal word meaning styles - add this to your existing CSS */
+.word-meaning-minimal {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.meaning-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.meaning-text {
+  color: #666;
+  font-style: italic;
+}
+
+.meaning-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.meaning-toggle-btn:hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.extended-meaning-content {
+  margin-top: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+}

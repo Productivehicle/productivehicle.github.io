@@ -1,0 +1,44 @@
+/* Toggle Switch Styles */
+.toggle-container {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-label {
+  cursor: pointer;
+  display: block;
+}
+
+.toggle-slider {
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 34px;
+  background-color: #4f46e5;
+  border-radius: 17px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider {
+  
+}
+
+.toggle-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider .toggle-dot {
+  transform: translateX(26px);
+}
