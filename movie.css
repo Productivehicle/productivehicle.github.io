@@ -18,9 +18,10 @@
   display: block;
   width: 60px;
   height: 34px;
-  background-color: #4f46e5;
+  background-color: #dc2626;
   border-radius: 17px;
   transition: background-color 0.3s ease;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.6), 0 0 40px rgba(220, 38, 38, 0.3);
 }
 
 .toggle-input:checked + .toggle-label .toggle-slider {
@@ -33,7 +34,7 @@
   left: 2px;
   width: 30px;
   height: 30px;
-  background-color: white;
+  background-color: #374151;
   border-radius: 50%;
   transition: transform 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
