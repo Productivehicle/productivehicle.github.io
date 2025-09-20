@@ -5,9 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Movie/Show Picker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glow-red {
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.6), 0 0 40px rgba(220, 38, 38, 0.3);
+      animation: glow-pulse 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow-pulse {
+      0% {
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.6), 0 0 40px rgba(220, 38, 38, 0.3);
+      }
+      100% {
+        box-shadow: 0 0 30px rgba(220, 38, 38, 0.8), 0 0 60px rgba(220, 38, 38, 0.5);
+      }
+    }
+  </style>
   <link rel="stylesheet" href="movie.css">
 </head>
-<body class="bg-gray-900 min-h-screen text-white relative">
+<body class="min-h-screen text-white relative" style="background-color: #111827;">
 
   <!-- Top Controls -->
   <div class="absolute top-4 left-4">
@@ -40,14 +55,14 @@
     </div>
 
     <!-- Main Pick Button -->
-    <button id="pickBtn" class="w-32 h-32 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center text-4xl mb-8 transition-all duration-300 hover:scale-110">
+    <button id="pickBtn" class="w-32 h-32 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-4xl mb-8 transition-all duration-300 hover:scale-110 glow-red">
       ✨
     </button>
 
     <!-- Result Card -->
     <div id="resultCard" class="hidden bg-gray-800 rounded-xl p-6 max-w-md w-full">
       <div id="resultContent"></div>
-      <button id="saveBtn" class="mt-4 w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg">
+      <button id="saveBtn" class="mt-4 w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg">
         💾 Save
       </button>
     </div>
@@ -61,7 +76,7 @@
       <textarea id="customInput" placeholder="e.g., Comedy movies from 2010-2020, Action series with high ratings..." 
         class="w-full h-24 bg-gray-700 text-white p-3 rounded-lg resize-none"></textarea>
       <div class="flex space-x-3 mt-4">
-        <button id="saveCustomBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg">Save</button>
+        <button id="saveCustomBtn" class="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg">Save</button>
         <button id="cancelCustomBtn" class="flex-1 bg-gray-600 hover:bg-gray-700 py-2 rounded-lg">Cancel</button>
       </div>
     </div>
