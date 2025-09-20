@@ -1,4 +1,4 @@
-    *{
+*{
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -6,28 +6,29 @@
     body { 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
       padding: 20px;
-      background-color: #f8f9fa;
+      background-color: #111827;
       min-height: 100vh;
       line-height: 1.5;
+      color: white;
     }
     .container {
       max-width: 600px;
       margin: 0 auto;
-      background: white;
+      background: #374151;
       padding: 32px;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     h1 {
       text-align: center;
-      color: #333;
+      color: white;
       margin-bottom: 8px;
       font-size: 1.6em;
       font-weight: 700;
     }
     .subtitle {
       text-align: center; 
-      color: #666;
+      color: #d1d5db;
       margin-bottom: 32px;
       font-size: 0.95em;
     }
@@ -37,23 +38,24 @@
     #wordInput {
       width: 100%;
       padding: 18px 20px;
-      border: 2px solid #e9ecef;
+      border: 2px solid #4b5563;
       border-radius: 16px;
       font-size: 16px;
       outline: none;
       transition: all 0.2s;
-      background: #fafafa;
+      background: #111827;
+      color: white;
       margin-bottom: 16px;
     }
     #wordInput:focus {
-      border-color: #4CAF50;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+      border-color: #dc2626;
+      background: #111827;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2), 0 0 20px rgba(220, 38, 38, 0.3);
     }
     #searchBtn {
       width: 100%;
       padding: 18px;
-      background: linear-gradient(135deg, #4CAF50, #45a049);
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
       color: white;
       border: none;
       border-radius: 16px;
@@ -62,35 +64,47 @@
       font-weight: 600;
       transition: all 0.2s;
       min-height: 56px;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), 0 4px 12px rgba(220, 38, 38, 0.3);
+      animation: glow-pulse 2s ease-in-out infinite alternate;
     }
+    
+    @keyframes glow-pulse {
+      0% {
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+      100% {
+        box-shadow: 0 0 30px rgba(220, 38, 38, 0.6), 0 6px 20px rgba(220, 38, 38, 0.5);
+      }
+    }
+    
     #searchBtn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      box-shadow: 0 0 30px rgba(220, 38, 38, 0.6), 0 6px 20px rgba(220, 38, 38, 0.5);
     }
     #searchBtn:disabled {
-      background: #cccccc;
+      background: #4b5563;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
+      animation: none;
     }
     .error-message {
-      color: #d32f2f;
+      color: #f87171;
       font-size: 14px;
       text-align: center;
       margin-top: 8px;
       display: none;
-      background: #ffebee;
+      background: #450a0a;
       padding: 12px;
       border-radius: 8px;
-      border: 1px solid #ffcdd2;
+      border: 1px solid #7f1d1d;
     }
     .current-universes {
-      background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+      background: linear-gradient(135deg, #1f2937, #374151);
       padding: 20px;
       border-radius: 16px;
       margin-bottom: 24px;
-      border: 1px solid #e3f2fd;
+      border: 1px solid #4b5563;
       position: relative;
     }
     .universes-header {
@@ -101,11 +115,11 @@
     }
     .universes-title {
       font-weight: 600;
-      color: #333;
+      color: white;
       font-size: 16px;
     }
     .add-universe-btn {
-      background: #4CAF50;
+      background: #dc2626;
       color: white;
       border: none;
       width: 32px;
@@ -118,10 +132,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
     }
     .add-universe-btn:hover {
-      background: #45a049;
+      background: #b91c1c;
       transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
     }
     .universe-tags {
       display: flex;
@@ -129,7 +145,7 @@
       gap: 12px;
     }
     .universe-tag {
-      background: #4CAF50;
+      background: #dc2626;
       color: white;
       padding: 10px 16px;
       border-radius: 25px;
@@ -138,16 +154,17 @@
       position: relative;
       transition: all 0.2s;
       padding-right: 36px;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
     }
     .universe-tag:hover {
-  
       transform: translateY(-1px);
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
     }
     .remove-universe {
       position: absolute;
       top: -4px;
       right: -4px;
-      background: #ff4444;
+      background: #6b7280;
       color: white;
       border: none;
       width: 20px;
@@ -162,11 +179,11 @@
       transition: all 0.2s;
     }
     .remove-universe:hover {
-      background: #ff3333;
+      background: #4b5563;
       transform: scale(1.1);
     }
     .no-universes {
-      color: #999;
+      color: #9ca3af;
       font-style: italic;
       text-align: center;
       padding: 20px 0;
@@ -182,18 +199,21 @@
     .add-universe-input input {
       flex: 1;
       padding: 12px 16px;
-      border: 2px solid #e9ecef;
+      border: 2px solid #4b5563;
       border-radius: 12px;
       font-size: 14px;
       outline: none;
       transition: border-color 0.2s;
+      background: #111827;
+      color: white;
     }
     .add-universe-input input:focus {
-      border-color: #4CAF50;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
     }
     .add-universe-input button {
       padding: 12px 20px;
-      background: #4CAF50;
+      background: #dc2626;
       color: white;
       border: none;
       border-radius: 12px;
@@ -202,15 +222,19 @@
       font-size: 14px;
       white-space: nowrap;
       transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
     }
     .add-universe-input button:hover {
-      background: #45a049;
+      background: #b91c1c;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
     }
     .cancel-btn {
-      background: #666 !important;
+      background: #4b5563 !important;
+      box-shadow: none !important;
     }
     .cancel-btn:hover {
-      background: #555 !important;
+      background: #374151 !important;
+      box-shadow: none !important;
     }
     .results {
       margin-top: 24px;
@@ -220,27 +244,27 @@
     }
     .result-universe {
       font-weight: 600;
-      color: #2196F3;
+      color: #f87171;
       font-size: 14px;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .result-sentence {
-      color: #333;
+      color: #e5e7eb;
       font-size: 18px;
       line-height: 1.6;
     }
     .loading {
       text-align: center;
-      color: #666;
+      color: #9ca3af;
       font-style: italic;
       padding: 32px;
       font-size: 18px;
     }
     .placeholder-text {
       text-align: center;
-      color: #999;
+      color: #6b7280;
       font-style: italic;
       padding: 32px;
       font-size: 16px;
@@ -276,7 +300,7 @@
 .word-meaning-minimal {
   margin-top: 32px;
   padding-top: 20px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid #4b5563;
 }
 
 .meaning-line {
@@ -284,13 +308,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f8f9fa;
+  background: #1f2937;
   border-radius: 12px;
   font-size: 14px;
 }
 
 .meaning-text {
-  color: #666;
+  color: #9ca3af;
   font-style: italic;
 }
 
@@ -307,19 +331,20 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
+  color: #d1d5db;
 }
 
 .meaning-toggle-btn:hover {
-  background: rgba(0,0,0,0.1);
+  background: rgba(220, 38, 38, 0.2);
 }
 
 .extended-meaning-content {
   margin-top: 12px;
   padding: 16px;
-  background: white;
-  border: 1px solid #e9ecef;
+  background: #111827;
+  border: 1px solid #4b5563;
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.5;
-  color: #555;
+  color: #d1d5db;
 }
