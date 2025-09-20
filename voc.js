@@ -143,10 +143,11 @@ async function getWordMeaning(word) {
     const prompt = `Define the word "${word}". Give me:
 1. A short definition with part of speech in parentheses
 2. A longer explanation
-
+Don't add any extra text.
 Example format:
-Brave: Showing courage (adjective)
-Extended: Brave means having or showing courage when facing danger, difficulty, or pain. It can refer to physical bravery in dangerous situations or moral courage when standing up for what's right.`;
+Brave(Adj): Showing courage 
+Extended: 
+Brave means having or showing courage when facing danger, difficulty, or pain. It can refer to physical bravery in dangerous situations or moral courage when standing up for what's right.`;
 
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + GEMINI_KEY,
