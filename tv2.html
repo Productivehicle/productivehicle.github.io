@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Browser Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .server-input {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(238, 90, 111, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .file-browser {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-browser h3 {
+            color: #4ecdc4;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-list {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .file-item.video {
+            border-left-color: #ff6b6b;
+        }
+
+        .file-item.subtitle {
+            border-left-color: #4ecdc4;
+            opacity: 0.7;
+        }
+
+        .file-item.other {
+            border-left-color: #ffd93d;
+            opacity: 0.5;
+        }
+
+        .file-icon {
+            margin-right: 12px;
+            font-size: 20px;
+            min-width: 30px;
+        }
+
+        .file-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .video-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-container h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        video {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: #000;
+        }
+
+        .video-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .status.info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #4ecdc4;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(78, 205, 196, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ecdc4;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .input-field {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .video-controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 File Browser Video Player</h1>
+            <p>Browse your files and play videos with automatic subtitles</p>
+        </div>
+
+        <div class="server-input">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="serverUrl">Server URL:</label>
+                    <input type="url" id="serverUrl" value="http://10.123.164.188:8080/files/" placeholder="http://your-server:8080/files/" />
+                </div>
+                <button class="btn-primary" onclick="loadFiles()">📁 Browse Files</button>
+                <button class="btn-secondary" onclick="refreshFiles()">🔄 Refresh</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="content-grid">
+            <div class="file-browser">
+                <h3>📁 Files</h3>
+                <div class="file-list" id="fileList">
+                    <div class="loading">Click "Browse Files" to load your directory</div>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <h3>🎥 Video Player</h3>
+                <video id="videoPlayer" controls crossorigin="anonymous" style="display: none;">
+                    Your browser does not support the video tag.
+                </video>
+                <div id="noVideo" style="text-align: center; padding: 60px; opacity: 0.5;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🎬</div>
+                    <p>Click on a video file to play it here</p>
+                </div>
+                <div class="video-info" id="videoInfo" style="display: none;"></div>
+                <div class="video-controls">
+                    <button class="btn-secondary" onclick="toggleSubtitles()" id="subtitleBtn" style="display: none;">📝 Toggle Subtitles</button>
+                    <button class="btn-secondary" onclick="clearVideo()">🗑️ Clear Video</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFiles = [];
+        let currentVideo = null;
+        let subtitlesEnabled = true;
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function getFileType(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            const videoExts = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm4v'];
+            const subtitleExts = ['srt', 'vtt', 'ass', 'ssa'];
+            
+            if (videoExts.includes(ext)) return 'video';
+            if (subtitleExts.includes(ext)) return 'subtitle';
+            return 'other';
+        }
+
+        function getFileIcon(type, filename) {
+            switch(type) {
+                case 'video': return '🎥';
+                case 'subtitle': return '📝';
+                case 'other':
+                    const ext = filename.toLowerCase().split('.').pop();
+                    if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return '🖼️';
+                    if (['txt', 'doc', 'pdf'].includes(ext)) return '📄';
+                    if (['zip', 'rar', '7z'].includes(ext)) return '📦';
+                    return '📄';
+                default: return '📄';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return '';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        async function loadFiles() {
+            const serverUrl = document.getElementById('serverUrl').value.trim();
+            
+            if (!serverUrl) {
+                showStatus('Please enter a server URL', 'error');
+                return;
+            }
+
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '<div class="loading">Loading files...</div>';
+            
+            showStatus('Loading file list...', 'info');
+
+            try {
+                // Try different approaches to get file listing
+                let response;
+                let files = [];
+
+                // Method 1: Try to get directory listing (works with many servers)
+                try {
+                    response = await fetch(serverUrl);
+                    const html = await response.text();
+                    files = parseDirectoryListing(html, serverUrl);
+                } catch (e) {
+                    console.log('Directory listing failed:', e);
+                    // Method 2: Try common patterns (fallback)
+                    files = await tryCommonFiles(serverUrl);
+                }
+
+                if (files.length === 0) {
+                    fileList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; opacity: 0.7;">
+                            <div style="font-size: 32px; margin-bottom: 15px;">📂</div>
+                            <p><strong>No files found or server doesn't support directory listing</strong></p>
+                            <p style="font-size: 14px; margin-top: 10px;">
+                                Try accessing files directly or check server settings
+                            </p>
+                        </div>
+                    `;
+                    showStatus('No files found. Server might not support directory listing.', 'error');
+                    return;
+                }
+
+                currentFiles = files;
+                displayFiles(files);
+                showStatus(`Found ${files.length} files!`, 'success');
+
+            } catch (error) {
+                console.error('Error loading files:', error);
+                fileList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #f44336;">
+                        <div style="font-size: 32px; margin-bottom: 15px;">❌</div>
+                        <p><strong>Error loading files</strong></p>
+                        <p style="font-size: 14px;">${error.message}</p>
+                    </div>
+                `;
+                showStatus('Error connecting to server: ' + error.message, 'error');
+            }
+        }
+
+        function parseDirectoryListing(html, baseUrl) {
+            const files = [];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Try different selectors for common server types
+            const selectors = [
+                'a[href]:not([href^="/"]):not([href^="?"])',  // Apache/Nginx
+                'table tr td a',  // Table-based listings
+                '.file a, .directory a',  // Custom file managers
+                'ul li a'  // List-based
+            ];
+
+            for (const selector of selectors) {
+                const links = doc.querySelectorAll(selector);
+                if (links.length > 0) {
+                    links.forEach(link => {
+                        const href = link.getAttribute('href');
+                        const name = link.textContent.trim();
+                        
+                        if (href && name && href !== '../' && !href.startsWith('?')) {
+                            const fullUrl = new URL(href, baseUrl).href;
+                            const type = getFileType(name);
+                            
+                            files.push({
+                                name: name,
+                                url: fullUrl,
+                                type: type,
+                                size: null // We don't have size info from HTML
+                            });
+                        }
+                    });
+                    break; // Use first successful selector
+                }
+            }
+
+            return files.sort((a, b) => {
+                // Sort: videos first, then subtitles, then others
+                const typeOrder = { video: 0, subtitle: 1, other: 2 };
+                if (typeOrder[a.type] !== typeOrder[b.type]) {
+                    return typeOrder[a.type] - typeOrder[b.type];
+                }
+                return a.name.localeCompare(b.name);
+            });
+        }
+
+        async function tryCommonFiles(baseUrl) {
+            // Fallback: try common video file patterns
+            const commonNames = [
+                'movie.mp4', 'video.mp4', 'film.mp4',
+                'Pirates.mp4', 'Movie.mkv', 'Video.avi'
+            ];
+            
+            const files = [];
+            for (const name of commonNames) {
+                try {
+                    const url = baseUrl + (baseUrl.endsWith('/') ? '' : '/') + name;
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        files.push({
+                            name: name,
+                            url: url,
+                            type: getFileType(name),
+                            size: response.headers.get('content-length')
+                        });
+                    }
+                } catch (e) {
+                    // Ignore failures
+                }
+            }
+            return files;
+        }
+
+        function displayFiles(files) {
+            const fileList = document.getElementById('fileList');
+            
+            if (files.length === 0) {
+                fileList.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.7;">No files found</div>';
+                return;
+            }
+
+            const html = files.map(file => `
+                <div class="file-item ${file.type}" onclick="handleFileClick('${file.url}', '${file.name}', '${file.type}')">
+                    <div class="file-icon">${getFileIcon(file.type, file.name)}</div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${file.size ? formatFileSize(parseInt(file.size)) : ''}</div>
+                </div>
+            `).join('');
+            
+            fileList.innerHTML = html;
+        }
+
+        function handleFileClick(fileUrl, fileName, fileType) {
+            if (fileType === 'video') {
+                playVideo(fileUrl, fileName);
+            } else {
+                showStatus(`Selected: ${fileName} (${fileType})`, 'info');
+            }
+        }
+
+        async function playVideo(videoUrl, fileName) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoInfo = document.getElementById('videoInfo');
+            const noVideo = document.getElementById('noVideo');
+            const subtitleBtn = document.getElementById('subtitleBtn');
+            
+            // Clear existing tracks
+            const existingTracks = videoPlayer.querySelectorAll('track');
+            existingTracks.forEach(track => track.remove());
+            
+            // Set video
+            videoPlayer.src = videoUrl;
+            videoPlayer.style.display = 'block';
+            noVideo.style.display = 'none';
+            videoInfo.style.display = 'block';
+            currentVideo = { url: videoUrl, name: fileName };
+            
+            // Update info
+            videoInfo.innerHTML = `
+                <strong>🎬 Now Playing:</strong> ${fileName}<br>
+                <strong>📍 URL:</strong> ${videoUrl}
+            `;
+            
+            showStatus('Loading video...', 'info');
+            
+            // Look for subtitle file
+            const subtitleUrl = getSubtitleUrl(videoUrl);
+            console.log('Looking for subtitle:', subtitleUrl);
+            
+            try {
+                const subtitleResponse = await fetch(subtitleUrl, { method: 'HEAD' });
+                if (subtitleResponse.ok) {
+                    const track = document.createElement('track');
+                    track.kind = 'subtitles';
+                    track.src = subtitleUrl;
+                    track.srclang = 'en';
+            
