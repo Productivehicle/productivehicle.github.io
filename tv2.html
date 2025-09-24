@@ -22,7 +22,7 @@
         .status.info { background: rgba(33,150,243,0.2); color: #2196f3; border:1px solid rgba(33,150,243,0.3);}
         .input-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600;}
-        input[type="url"] { width: 100%; padding: 12px 16px; border-radius: 8px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; border: none;}
+        input[type="text"] { width: 100%; padding: 12px 16px; border-radius: 8px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; border: none;}
         .button-group { display: flex; gap: 15px; flex-wrap: wrap;}
         button { padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btn-primary { background: linear-gradient(45deg,#ff6b6b,#ee5a6f); color: white;}
@@ -39,11 +39,11 @@
     <div class="container">
         <div class="header">
             <h1>🎬 Video Player with Auto Subtitles</h1>
-            <p>Loads .vtt subtitles that match your video name automatically!</p>
+            <p>Just type the file name (e.g. <b>Pirates.mp4</b>)!</p>
         </div>
         <div class="input-group">
-            <label for="videoUrl">Video URL:</label>
-            <input type="url" id="videoUrl" placeholder="http://192.168.x.x:8080/path/to/video.mp4" />
+            <label for="videoFile">File name:</label>
+            <input type="text" id="videoFile" placeholder="Pirates.mp4" />
         </div>
         <div class="button-group">
             <button class="btn-primary" onclick="loadVideo()">🎥 Load Video</button>
@@ -58,6 +58,8 @@
         </div>
     </div>
     <script>
+        const BASE_URL = "http://10.123.164.188:8080/files/";
+
         let currentVideo = null;
         let subtitlesEnabled = true;
 
@@ -80,17 +82,21 @@
             }
         }
 
-        function getSubtitleUrl(videoUrl) {
-            // Always use .vtt (WebVTT subtitles, supported everywhere)
-            return videoUrl.replace(/\.[^/.]+$/, '.vtt');
+        function getSubtitleUrl(fileName) {
+            return BASE_URL + fileName.replace(/\.[^/.]+$/, '.vtt');
+        }
+
+        function getVideoUrl(fileName) {
+            return BASE_URL + fileName;
         }
 
         async function loadVideo() {
-            const videoUrl = document.getElementById('videoUrl').value.trim();
-            if (!videoUrl) {
-                showStatus('Please enter a video URL', 'error');
+            const fileName = document.getElementById('videoFile').value.trim();
+            if (!fileName) {
+                showStatus('Please enter a file name', 'error');
                 return;
             }
+            const videoUrl = getVideoUrl(fileName);
             const videoContainer = document.getElementById('videoContainer');
             const videoPlayer = document.getElementById('videoPlayer');
 
@@ -104,7 +110,7 @@
             showStatus('Loading video...', 'info');
 
             // Try loading VTT subtitle
-            const subtitleUrl = getSubtitleUrl(videoUrl);
+            const subtitleUrl = getSubtitleUrl(fileName);
             const subtitleExists = await checkSubtitleExists(subtitleUrl);
 
             if (subtitleExists) {
@@ -121,11 +127,11 @@
             }
 
             videoPlayer.addEventListener('loadeddata', function() {
-                // no-op, but you could add status update here
+                // no-op
             });
 
             videoPlayer.addEventListener('error', function() {
-                showStatus('Error loading video. Check the URL and server accessibility.', 'error');
+                showStatus('Error loading video. Check the file name and server.', 'error');
             });
         }
 
@@ -146,9 +152,9 @@
         function clearVideo() {
             const videoContainer = document.getElementById('videoContainer');
             const videoPlayer = document.getElementById('videoPlayer');
-            const videoUrl = document.getElementById('videoUrl');
+            const videoFile = document.getElementById('videoFile');
             videoPlayer.src = '';
-            videoUrl.value = '';
+            videoFile.value = '';
             videoContainer.style.display = 'none';
             currentVideo = null;
             const existingTracks = videoPlayer.querySelectorAll('track');
@@ -157,7 +163,7 @@
         }
 
         // Allow "Enter" key to load video
-        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+        document.getElementById('videoFile').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') loadVideo();
         });
     </script>
