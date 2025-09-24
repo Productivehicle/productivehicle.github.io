@@ -1,125 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Video Files</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player with Auto Subtitles</title>
     <style>
-        body { font-family: Arial; padding: 20px; background: #222; color: white; }
-        .file-item { 
-            padding: 15px; 
-            margin: 10px 0; 
-            background: #444; 
-            cursor: pointer; 
-            border-radius: 5px; 
-            font-size: 18px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
         }
-        .file-item:hover { background: #666; }
-        .video-file { background: #2a4d3a; border-left: 5px solid #4caf50; }
-        video { width: 100%; margin: 20px 0; background: black; }
-        .status { padding: 10px; background: #333; margin: 10px 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .video-container { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);}
+        video { width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);}
+        .status { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; display: none; }
+        .status.success { background: rgba(76,175,80,0.2); color: #4caf50; border:1px solid rgba(76,175,80,0.3);}
+        .status.error { background: rgba(244,67,54,0.2); color: #f44336; border:1px solid rgba(244,67,54,0.3);}
+        .status.info { background: rgba(33,150,243,0.2); color: #2196f3; border:1px solid rgba(33,150,243,0.3);}
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600;}
+        input[type="url"] { width: 100%; padding: 12px 16px; border-radius: 8px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; border: none;}
+        .button-group { display: flex; gap: 15px; flex-wrap: wrap;}
+        button { padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background: linear-gradient(45deg,#ff6b6b,#ee5a6f); color: white;}
+        .btn-secondary { background: linear-gradient(45deg,#4ecdc4,#44a08d); color: white;}
+        @media (max-width: 768px) {
+            .container { padding: 10px;}
+            .header h1 { font-size: 2rem;}
+            .button-group { flex-direction: column;}
+            button { width: 100%;}
+        }
     </style>
 </head>
 <body>
-    <h1>🎬 Video Files</h1>
-    
-    <div id="status">Loading files...</div>
-    
-    <div id="fileList"></div>
-    
-    <video id="video" controls crossorigin="anonymous" style="display:none;"></video>
-    
-    <div id="videoInfo"></div>
-
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Video Player with Auto Subtitles</h1>
+            <p>Loads .vtt subtitles that match your video name automatically!</p>
+        </div>
+        <div class="input-group">
+            <label for="videoUrl">Video URL:</label>
+            <input type="url" id="videoUrl" placeholder="http://192.168.x.x:8080/path/to/video.mp4" />
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="loadVideo()">🎥 Load Video</button>
+            <button class="btn-secondary" onclick="toggleSubtitles()">📝 Toggle Subtitles</button>
+            <button class="btn-secondary" onclick="clearVideo()">🗑️ Clear</button>
+        </div>
+        <div class="status" id="status"></div>
+        <div class="video-container" id="videoContainer" style="display: none;">
+            <video id="videoPlayer" controls crossorigin="anonymous">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
     <script>
-        const SERVER_URL = 'http://10.123.164.188:8080/files/';
-        
-        // Auto-load files when page opens
-        window.onload = function() {
-            loadFiles();
-        };
-        
-        async function loadFiles() {
+        let currentVideo = null;
+        let subtitlesEnabled = true;
+
+        function showStatus(message, type) {
             const status = document.getElementById('status');
-            const fileList = document.getElementById('fileList');
-            
-            try {
-                const response = await fetch(SERVER_URL);
-                const html = await response.text();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const links = doc.querySelectorAll('a[href]');
-                
-                const videos = [];
-                
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-                    const name = link.textContent.trim();
-                    
-                    if (!name || href === '../') return;
-                    
-                    const ext = name.toLowerCase().split('.').pop();
-                    if (['mp4', 'avi', 'mkv', 'webm', 'mov', 'm4v'].includes(ext)) {
-                        videos.push({
-                            name: name,
-                            url: SERVER_URL + href
-                        });
-                    }
-                });
-                
-                if (videos.length === 0) {
-                    status.innerHTML = 'No video files found';
-                    return;
-                }
-                
-                status.innerHTML = `Found ${videos.length} videos`;
-                
-                videos.forEach(video => {
-                    const div = document.createElement('div');
-                    div.className = 'file-item video-file';
-                    div.innerHTML = '▶️ ' + video.name;
-                    div.onclick = () => playVideo(video);
-                    fileList.appendChild(div);
-                });
-                
-            } catch (error) {
-                status.innerHTML = 'Cannot load files from server';
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => { status.style.display = 'none'; }, 5000);
             }
         }
-        
-        async function playVideo(file) {
-            const video = document.getElementById('video');
-            const videoInfo = document.getElementById('videoInfo');
-            
-            video.src = file.url;
-            video.style.display = 'block';
-            
-            // Clear old subtitles
-            video.querySelectorAll('track').forEach(track => track.remove());
-            
-            const videoName = file.name.replace(/\.[^.]+$/, '');
-            const subtitleUrl = SERVER_URL + videoName + '.srt';
-            
-            videoInfo.innerHTML = `Playing: ${file.name}`;
-            
+
+        async function checkSubtitleExists(subtitleUrl) {
             try {
                 const response = await fetch(subtitleUrl, { method: 'HEAD' });
-                if (response.ok) {
-                    const track = document.createElement('track');
-                    track.kind = 'subtitles';
-                    track.src = subtitleUrl;
-                    track.srclang = 'en';
-                    track.label = 'Subtitles';
-                    track.default = true;
-                    
-                    video.appendChild(track);
-                    videoInfo.innerHTML = `Playing: ${file.name} ✅ With subtitles`;
-                } else {
-                    videoInfo.innerHTML = `Playing: ${file.name} ❌ No subtitles`;
-                }
+                return response.ok;
             } catch (error) {
-                videoInfo.innerHTML = `Playing: ${file.name} ❌ Subtitle error`;
+                return false;
             }
         }
+
+        function getSubtitleUrl(videoUrl) {
+            // Always use .vtt (WebVTT subtitles, supported everywhere)
+            return videoUrl.replace(/\.[^/.]+$/, '.vtt');
+        }
+
+        async function loadVideo() {
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            if (!videoUrl) {
+                showStatus('Please enter a video URL', 'error');
+                return;
+            }
+            const videoContainer = document.getElementById('videoContainer');
+            const videoPlayer = document.getElementById('videoPlayer');
+
+            // Remove old tracks
+            const existingTracks = videoPlayer.querySelectorAll('track');
+            existingTracks.forEach(track => track.remove());
+
+            videoPlayer.src = videoUrl;
+            currentVideo = videoUrl;
+            videoContainer.style.display = 'block';
+            showStatus('Loading video...', 'info');
+
+            // Try loading VTT subtitle
+            const subtitleUrl = getSubtitleUrl(videoUrl);
+            const subtitleExists = await checkSubtitleExists(subtitleUrl);
+
+            if (subtitleExists) {
+                const track = document.createElement('track');
+                track.kind = 'subtitles';
+                track.src = subtitleUrl;
+                track.srclang = 'en';
+                track.label = 'English';
+                track.default = true;
+                videoPlayer.appendChild(track);
+                showStatus('Video and subtitles loaded successfully! 🎉', 'success');
+            } else {
+                showStatus('Video loaded, but no matching .vtt subtitle found.', 'info');
+            }
+
+            videoPlayer.addEventListener('loadeddata', function() {
+                // no-op, but you could add status update here
+            });
+
+            videoPlayer.addEventListener('error', function() {
+                showStatus('Error loading video. Check the URL and server accessibility.', 'error');
+            });
+        }
+
+        function toggleSubtitles() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const tracks = videoPlayer.textTracks;
+            if (!tracks || tracks.length === 0) {
+                showStatus('No subtitles available to toggle', 'error');
+                return;
+            }
+            for (let i = 0; i < tracks.length; i++) {
+                tracks[i].mode = subtitlesEnabled ? 'hidden' : 'showing';
+            }
+            subtitlesEnabled = !subtitlesEnabled;
+            showStatus(`Subtitles ${subtitlesEnabled ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        function clearVideo() {
+            const videoContainer = document.getElementById('videoContainer');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoUrl = document.getElementById('videoUrl');
+            videoPlayer.src = '';
+            videoUrl.value = '';
+            videoContainer.style.display = 'none';
+            currentVideo = null;
+            const existingTracks = videoPlayer.querySelectorAll('track');
+            existingTracks.forEach(track => track.remove());
+            showStatus('Video cleared', 'info');
+        }
+
+        // Allow "Enter" key to load video
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loadVideo();
+        });
     </script>
 </body>
 </html>
