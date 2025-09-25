@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Video Player with Auto Subtitles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .video-container { 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            position: relative;
+        }
+        video { 
+            width: 100%; 
+            border-radius: 10px; 
+            display: block;
+        }
+        .subtitle-overlay {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            max-width: 90%;
+            line-height: 1.4;
+            display: none;
+            z-index: 10;
+            text-shadow: 2px 2px 4px rgba(0,0,0,1);
+        }
+        .status { 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            font-weight: bold; 
+            display: none; 
+            font-size: 18px;
+        }
+        .status.success { background: #4caf50; color: white; }
+        .status.error { background: #f44336; color: white; }
+        .status.info { background: #2196f3; color: white; }
+        .input-group { margin-bottom: 20px; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: bold;
+            font-size: 18px;
+        }
+        input[type="text"] { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            background: white; 
+            color: #333; 
+            border: 2px solid #ccc;
+            box-sizing: border-box;
+        }
+        .button-group { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button { 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .btn-primary { background: #ff6b6b; color: white; }
+        .btn-secondary { background: #4ecdc4; color: white; }
+        button:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 TV Video Player</h1>
+            <p>Enter filename (e.g. Pirates.mp4) - subtitles auto-load from .txt file</p>
+        </div>
+        <div class="input-group">
+            <label for="videoFile">File name:</label>
+            <input type="text" id="videoFile" placeholder="Pirates.mp4" />
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="loadVideo()">🎥 Load Video</button>
+            <button class="btn-secondary" onclick="toggleSubtitles()">📝 Toggle Subtitles</button>
+            <button class="btn-secondary" onclick="clearVideo()">🗑️ Clear</button>
+        </div>
+        <div class="status" id="status"></div>
+        <div class="video-container" id="videoContainer" style="display: none;">
+            <video id="videoPlayer" controls>
+                Your browser does not support the video tag.
+            </video>
+            <div class="subtitle-overlay" id="subtitleOverlay"></div>
+        </div>
+    </div>
+    <script>
+        var BASE_URL = "http://10.123.164.188:8080/files/";
+        var currentVideo = null;
+        var subtitlesEnabled = true;
+        var subtitles = [];
+        var currentSubtitleIndex = -1;
+
+        function showStatus(message, type) {
+            var status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(function() { 
+                    status.style.display = 'none'; 
+                }, 5000);
+            }
+        }
+
+        function parseTimeToSeconds(timeStr) {
+            var parts = timeStr.split(':');
+            var hours = parseInt(parts[0]);
+            var minutes = parseInt(parts[1]);
+            var secondsParts = parts[2].split(',');
+            var seconds = parseInt(secondsParts[0]);
+            var milliseconds = parseInt(secondsParts[1]);
+            
+            return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
+        }
+
+        function parseSRT(srtContent) {
+            var subtitleBlocks = srtContent.trim().split(/\n\s*\n/);
+            var parsedSubtitles = [];
+
+            for (var i = 0; i < subtitleBlocks.length; i++) {
+                var block = subtitleBlocks[i];
+                var lines = block.trim().split('\n');
+                if (lines.length < 3) continue;
+
+                // Check if first line is a number
+                if (!/^\d+$/.test(lines[0])) continue;
+
+                // Check timestamp format
+                var timestampMatch = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})/);
+                if (!timestampMatch) continue;
+
+                var startTime = parseTimeToSeconds(timestampMatch[1]);
+                var endTime = parseTimeToSeconds(timestampMatch[2]);
+                var text = lines.slice(2).join('\n');
+
+                parsedSubtitles.push({
+                    start: startTime,
+                    end: endTime,
+                    text: text
+                });
+            }
+
+            return parsedSubtitles;
+        }
+
+        function processSubtitleText(text) {
+            return text
+                .replace(/<i>/g, '')
+                .replace(/<\/i>/g, '')
+                .replace(/<b>/g, '')
+                .replace(/<\/b>/g, '')
+                .replace(/<u>/g, '')
+                .replace(/<\/u>/g, '');
+        }
+
+        function updateSubtitles() {
+            if (!subtitlesEnabled || subtitles.length === 0) {
+                document.getElementById('subtitleOverlay').style.display = 'none';
+                return;
+            }
+
+            var videoPlayer = document.getElementById('videoPlayer');
+            var subtitleOverlay = document.getElementById('subtitleOverlay');
+            var currentTime = videoPlayer.currentTime;
+
+            var activeSubtitle = null;
+            for (var i = 0; i < subtitles.length; i++) {
+                if (currentTime >= subtitles[i].start && currentTime <= subtitles[i].end) {
+                    activeSubtitle = subtitles[i];
+                    currentSubtitleIndex = i;
+                    break;
+                }
+            }
+
+            if (activeSubtitle) {
+                subtitleOverlay.innerHTML = processSubtitleText(activeSubtitle.text);
+                subtitleOverlay.style.display = 'block';
+            } else {
+                subtitleOverlay.style.display = 'none';
+                currentSubtitleIndex = -1;
+            }
+        }
+
+        function loadSubtitles(txtUrl) {
+            // Use XMLHttpRequest for better TV browser compatibility
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', txtUrl, true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var txtContent = xhr.responseText;
+                        if (txtContent && txtContent.trim().length > 0) {
+                            subtitles = parseSRT(txtContent);
+                            
+                            if (subtitles.length > 0) {
+                                showStatus('Video and ' + subtitles.length + ' subtitles loaded! 🎉', 'success');
+                            } else {
+                                showStatus('Video loaded, but subtitle format not recognized.', 'info');
+                            }
+                        } else {
+                            showStatus('Video loaded, but subtitle file is empty.', 'info');
+                        }
+                    } else {
+                        showStatus('Video loaded, but no .txt subtitle found. (Error: ' + xhr.status + ')', 'info');
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                showStatus('Video loaded, but subtitle loading failed.', 'info');
+            };
+            
+            xhr.send();
+        }
+
+        function loadVideo() {
+            var fileName = document.getElementById('videoFile').value;
+            if (!fileName || fileName.trim() === '') {
+                showStatus('Please enter a file name', 'error');
+                return;
+            }
+
+            fileName = fileName.trim();
+            var videoUrl = BASE_URL + fileName;
+            var txtUrl = BASE_URL + fileName.replace(/\.[^/.]+$/, '.txt');
+            
+            var videoContainer = document.getElementById('videoContainer');
+            var videoPlayer = document.getElementById('videoPlayer');
+            var subtitleOverlay = document.getElementById('subtitleOverlay');
+
+            // Clear previous subtitles
+            subtitles = [];
+            subtitleOverlay.style.display = 'none';
+
+            videoPlayer.src = videoUrl;
+            currentVideo = videoUrl;
+            videoContainer.style.display = 'block';
+            showStatus('Loading video...', 'info');
+
+            // Remove old listener
+            videoPlayer.removeEventListener('timeupdate', updateSubtitles);
+            // Add new listener
+            videoPlayer.addEventListener('timeupdate', updateSubtitles);
+
+            videoPlayer.onerror = function() {
+                showStatus('Error loading video. Check the file name and server.', 'error');
+            };
+
+            // Load subtitles
+            loadSubtitles(txtUrl);
+        }
+
+        function toggleSubtitles() {
+            subtitlesEnabled = !subtitlesEnabled;
+            showStatus('Subtitles ' + (subtitlesEnabled ? 'enabled' : 'disabled'), 'info');
+            
+            if (!subtitlesEnabled) {
+                document.getElementById('subtitleOverlay').style.display = 'none';
+            }
+        }
+
+        function clearVideo() {
+            var videoContainer = document.getElementById('videoContainer');
+            var videoPlayer = document.getElementById('videoPlayer');
+            var videoFile = document.getElementById('videoFile');
+            var subtitleOverlay = document.getElementById('subtitleOverlay');
+            
+            videoPlayer.src = '';
+            videoFile.value = '';
+            videoContainer.style.display = 'none';
+            currentVideo = null;
+            subtitles = [];
+            subtitleOverlay.style.display = 'none';
+            
+            videoPlayer.removeEventListener('timeupdate', updateSubtitles);
+            showStatus('Video cleared', 'info');
+        }
+
+        // Enter key support
+        document.getElementById('videoFile').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                loadVideo();
+            }
+        });
+    </script>
+</body>
+</html>
