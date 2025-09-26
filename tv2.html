@@ -1,281 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player with Auto Subtitles</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            color: white;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-        .video-container { 
-            background: rgba(0,0,0,0.3); 
-            border-radius: 15px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-        }
-        video { 
-            width: 100%; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: block;
-        }
-        .subtitle-overlay {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: 500;
-            text-align: center;
-            max-width: 90%;
-            line-height: 1.4;
-            display: none;
-            z-index: 10;
-            white-space: pre-line;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-        }
-        .status { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; display: none; }
-        .status.success { background: rgba(76,175,80,0.2); color: #4caf50; border:1px solid rgba(76,175,80,0.3);}
-        .status.error { background: rgba(244,67,54,0.2); color: #f44336; border:1px solid rgba(244,67,54,0.3);}
-        .status.info { background: rgba(33,150,243,0.2); color: #2196f3; border:1px solid rgba(33,150,243,0.3);}
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600;}
-        input[type="text"] { width: 100%; padding: 12px 16px; border-radius: 8px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; border: none;}
-        .button-group { display: flex; gap: 15px; flex-wrap: wrap;}
-        button { padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btn-primary { background: linear-gradient(45deg,#ff6b6b,#ee5a6f); color: white;}
-        .btn-secondary { background: linear-gradient(45deg,#4ecdc4,#44a08d); color: white;}
-        @media (max-width: 768px) {
-            .container { padding: 10px;}
-            .header h1 { font-size: 2rem;}
-            .button-group { flex-direction: column;}
-            button { width: 100%;}
-            .subtitle-overlay {
-                font-size: 16px;
-                bottom: 50px;
-                padding: 6px 12px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>TV File Browser</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+    }
+    a {
+      display: block;
+      padding: 8px;
+      margin: 4px 0;
+      color: #0af;
+      text-decoration: none;
+      position: relative;
+    }
+    a:hover {
+      background: #222;
+    }
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: #0af;
+      transition: width 0.3s ease;
+    }
+    .continue-watching {
+      margin-bottom: 30px;
+    }
+    .continue-watching h3 {
+      color: #0af;
+      margin-bottom: 10px;
+    }
+    .continue-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 8px;
+      margin: 4px 0;
+      background: #111;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .continue-item:hover {
+      background: #222;
+    }
+    .continue-info {
+      flex: 1;
+    }
+    .continue-progress {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+    .continue-time {
+      font-size: 12px;
+      color: #0af;
+      margin-left: 10px;
+    }
+    #player {
+      margin-top: 20px;
+    }
+    video {
+      width: 100%;
+      max-height: 80vh;
+      background: #000;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .debug {
+      background: #333;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎬 Video Player with Auto Subtitles</h1>
-            <p>Just type the file name (e.g. <b>Pirates.mp4</b>)! Put your SRT content in a .txt file with the same name.</p>
-        </div>
-        <div class="input-group">
-            <label for="videoFile">File name:</label>
-            <input type="text" id="videoFile" placeholder="Pirates.mp4" />
-        </div>
-        <div class="button-group">
-            <button class="btn-primary" onclick="loadVideo()">🎥 Load Video</button>
-            <button class="btn-secondary" onclick="toggleSubtitles()">📝 Toggle Subtitles</button>
-            <button class="btn-secondary" onclick="clearVideo()">🗑️ Clear</button>
-        </div>
-        <div class="status" id="status"></div>
-        <div class="video-container" id="videoContainer" style="display: none;">
-            <video id="videoPlayer" controls>
-                Your browser does not support the video tag.
-            </video>
-            <div class="subtitle-overlay" id="subtitleOverlay"></div>
-        </div>
-    </div>
-    <script>
-        const BASE_URL = "http://10.123.164.188:8080/files/";
+  <h2>TV File Browser</h2>
+  
+  <!-- Debug info -->
+  <div class="debug">
+    <strong>Debug Info:</strong><br>
+    Current URL: <span id="current-url"></span><br>
+    Base URL: <span id="base-url"></span><br>
+    Status: <span id="status">Loading...</span>
+  </div>
+  
+  <div id="continue-watching" class="section continue-watching" style="display: none;">
+    <h3>Continue Watching</h3>
+    <div id="continue-list"></div>
+  </div>
 
-        let currentVideo = null;
-        let subtitlesEnabled = true;
-        let subtitles = [];
-        let currentSubtitleIndex = -1;
+  <div class="section">
+    <h3>All Files</h3>
+    <div id="file-list">Loading...</div>
+  </div>
+  
+  <div id="player"></div>
 
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = `status ${type}`;
-            status.style.display = 'block';
-            if (type === 'success' || type === 'info') {
-                setTimeout(() => { status.style.display = 'none'; }, 5000);
-            }
+  <script>
+    // Use dynamic base URL
+    const baseUrl = new URL('./', window.location.href).href;
+    
+    // Debug info
+    document.getElementById('current-url').textContent = window.location.href;
+    document.getElementById('base-url').textContent = baseUrl;
+
+    // Storage for viewing progress
+    function getWatchProgress() {
+      const stored = localStorage.getItem('watchProgress');
+      return stored ? JSON.parse(stored) : {};
+    }
+
+    function saveWatchProgress(filename, currentTime, duration) {
+      const progress = getWatchProgress();
+      const progressPercent = (currentTime / duration) * 100;
+      
+      // Only save if watched more than 5% and less than 95%
+      if (progressPercent > 5 && progressPercent < 95) {
+        progress[filename] = {
+          currentTime: currentTime,
+          duration: duration,
+          timestamp: Date.now(),
+          progressPercent: progressPercent
+        };
+      } else if (progressPercent >= 95) {
+        // Remove from continue watching if finished
+        delete progress[filename];
+      }
+      
+      localStorage.setItem('watchProgress', JSON.stringify(progress));
+      updateContinueWatching();
+    }
+
+    function updateContinueWatching() {
+      const progress = getWatchProgress();
+      const continueSection = document.getElementById('continue-watching');
+      const continueList = document.getElementById('continue-list');
+      
+      const items = Object.entries(progress)
+        .sort((a, b) => b[1].timestamp - a[1].timestamp) // Sort by most recent
+        .slice(0, 10); // Show only 10 most recent
+      
+      if (items.length === 0) {
+        continueSection.style.display = 'none';
+        return;
+      }
+      
+      continueSection.style.display = 'block';
+      continueList.innerHTML = '';
+      
+      items.forEach(([filename, data]) => {
+        const item = document.createElement('div');
+        item.className = 'continue-item';
+        
+        const progressBar = Math.round(data.progressPercent);
+        const currentTimeFormatted = formatTime(data.currentTime);
+        const durationFormatted = formatTime(data.duration);
+        
+        item.innerHTML = `
+          <div class="continue-info">
+            <div>${filename}</div>
+            <div class="continue-progress">${progressBar}% watched</div>
+          </div>
+          <div class="continue-time">${currentTimeFormatted} / ${durationFormatted}</div>
+        `;
+        
+        item.onclick = () => {
+          playVideo(filename, data.currentTime);
+        };
+        
+        continueList.appendChild(item);
+      });
+    }
+
+    function formatTime(seconds) {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      
+      if (hrs > 0) {
+        return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    async function loadFiles() {
+      const statusEl = document.getElementById('status');
+      try {
+        statusEl.textContent = 'Fetching directory listing...';
+        console.log('Fetching from:', baseUrl);
+        
+        const res = await fetch(baseUrl);
+        
+        statusEl.textContent = `Response status: ${res.status}`;
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         }
+        
+        const text = await res.text();
+        console.log('Response text length:', text.length);
+        console.log('First 500 chars:', text.substring(0, 500));
 
-        function parseTimeToSeconds(timeStr) {
-            // Convert "00:01:30,500" to seconds (90.5)
-            const parts = timeStr.split(':');
-            const hours = parseInt(parts[0]);
-            const minutes = parseInt(parts[1]);
-            const secondsParts = parts[2].split(',');
-            const seconds = parseInt(secondsParts[0]);
-            const milliseconds = parseInt(secondsParts[1]);
-            
-            return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
-        }
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const links = Array.from(doc.querySelectorAll("a"));
+        
+        console.log('Found links:', links.length);
+        statusEl.textContent = `Found ${links.length} links`;
 
-        function parseSRT(srtContent) {
-            const subtitleBlocks = srtContent.trim().split(/\n\s*\n/);
-            const parsedSubtitles = [];
+        const list = document.getElementById("file-list");
+        list.innerHTML = "";
 
-            for (const block of subtitleBlocks) {
-                const lines = block.trim().split('\n');
-                if (lines.length < 3) continue;
+        const progress = getWatchProgress();
+        let fileCount = 0;
 
-                // First line should be sequence number
-                const sequenceMatch = lines[0].match(/^\d+$/);
-                if (!sequenceMatch) continue;
+        links.forEach((link, index) => {
+          const href = link.getAttribute("href");
+          console.log(`Link ${index}:`, href, 'Text:', link.textContent);
+          
+          if (!href || href.startsWith("?") || href === "../") {
+            console.log(`Skipping link: ${href}`);
+            return;
+          }
 
-                // Second line should be timestamp
-                const timestampMatch = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})/);
-                if (!timestampMatch) continue;
-
-                const startTime = parseTimeToSeconds(timestampMatch[1]);
-                const endTime = parseTimeToSeconds(timestampMatch[2]);
-
-                // Remaining lines are the subtitle text
-                const text = lines.slice(2).join('\n');
-
-                parsedSubtitles.push({
-                    start: startTime,
-                    end: endTime,
-                    text: text
-                });
-            }
-
-            return parsedSubtitles;
-        }
-
-        function processSubtitleText(text) {
-            // Handle basic HTML tags
-            return text
-                .replace(/<i>/g, '')
-                .replace(/<\/i>/g, '')
-                .replace(/<b>/g, '')
-                .replace(/<\/b>/g, '')
-                .replace(/<u>/g, '')
-                .replace(/<\/u>/g, '')
-                .trim();
-        }
-
-        function updateSubtitles() {
-            if (!subtitlesEnabled || subtitles.length === 0) {
-                document.getElementById('subtitleOverlay').style.display = 'none';
-                return;
-            }
-
-            const videoPlayer = document.getElementById('videoPlayer');
-            const subtitleOverlay = document.getElementById('subtitleOverlay');
-            const currentTime = videoPlayer.currentTime;
-
-            // Find active subtitle
-            let activeSubtitle = null;
-            for (let i = 0; i < subtitles.length; i++) {
-                if (currentTime >= subtitles[i].start && currentTime <= subtitles[i].end) {
-                    activeSubtitle = subtitles[i];
-                    currentSubtitleIndex = i;
-                    break;
-                }
-            }
-
-            if (activeSubtitle) {
-                subtitleOverlay.textContent = processSubtitleText(activeSubtitle.text);
-                subtitleOverlay.style.display = 'block';
-            } else {
-                subtitleOverlay.style.display = 'none';
-                currentSubtitleIndex = -1;
-            }
-        }
-
-        async function loadVideo() {
-            const fileName = document.getElementById('videoFile').value.trim();
-            if (!fileName) {
-                showStatus('Please enter a file name', 'error');
-                return;
-            }
-
-            const videoUrl = BASE_URL + fileName;
-            const txtUrl = BASE_URL + fileName.replace(/\.[^/.]+$/, '.txt');
-            const videoContainer = document.getElementById('videoContainer');
-            const videoPlayer = document.getElementById('videoPlayer');
-            const subtitleOverlay = document.getElementById('subtitleOverlay');
-
-            // Clear previous subtitles
-            subtitles = [];
-            subtitleOverlay.style.display = 'none';
-
-            videoPlayer.src = videoUrl;
-            currentVideo = videoUrl;
-            videoContainer.style.display = 'block';
-            showStatus('Loading video...', 'info');
-
-            // Add time update listener
-            videoPlayer.addEventListener('timeupdate', updateSubtitles);
-
-            try {
-                const response = await fetch(txtUrl);
-                if (response.ok) {
-                    const txtContent = await response.text();
-                    subtitles = parseSRT(txtContent);
-                    
-                    if (subtitles.length > 0) {
-                        showStatus(`Video and ${subtitles.length} subtitles loaded! 🎉`, 'success');
-                    } else {
-                        showStatus('Video loaded, but subtitle format not recognized.', 'info');
-                    }
-                } else {
-                    showStatus('Video loaded, but no .txt subtitle found.', 'info');
-                }
-            } catch (error) {
-                showStatus('Video loaded, but no .txt subtitle found.', 'info');
-            }
-
-            videoPlayer.addEventListener('error', function() {
-                showStatus('Error loading video. Check the file name and server.', 'error');
-            });
-        }
-
-        function toggleSubtitles() {
-            subtitlesEnabled = !subtitlesEnabled;
-            showStatus(`Subtitles ${subtitlesEnabled ? 'enabled' : 'disabled'}`, 'info');
-            
-            if (!subtitlesEnabled) {
-                document.getElementById('subtitleOverlay').style.display = 'none';
-            }
-        }
-
-        function clearVideo() {
-            const videoContainer = document.getElementById('videoContainer');
-            const videoPlayer = document.getElementById('videoPlayer');
-            const videoFile = document.getElementById('videoFile');
-            const subtitleOverlay = document.getElementById('subtitleOverlay');
-            
-            videoPlayer.src = '';
-            videoFile.value = '';
-            videoContainer.style.display = 'none';
-            currentVideo = null;
-            subtitles = [];
-            subtitleOverlay.style.display = 'none';
-            
-            // Remove event listener
-            videoPlayer.removeEventListener('timeupdate', updateSubtitles);
-            
-            showStatus('Video cleared', 'info');
-        }
-
-        document.getElementById('videoFile').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadVideo();
+          // Check if it's a video file
+          const videoExtensions = ['.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm'];
+          const isVideo = videoExtensions.some(ext => href.toLowerCase().endsWith(ext));
+          
+          const item = document.createElement("a");
+          item.textContent = href + (isVideo ? ' (video)' : '');
+          item.href = "#";
+          item.style.position = 'relative';
+          
+          // Add progress bar if file has been watched
+          if (progress[href]) {
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.style.width = progress[href].progressPercent + '%';
+            item.appendChild(progressBar);
+          }
+          
+          item.onclick = () => {
+            playVideo(href);
+            return false;
+          };
+          list.appendChild(item);
+          fileCount++;
         });
-    </script>
+        
+        statusEl.textContent = `Loaded ${fileCount} files successfully`;
+        updateContinueWatching();
+        
+      } catch (err) {
+        console.error('Error loading files:', err);
+        statusEl.textContent = `Error: ${err.message}`;
+        document.getElementById("file-list").innerHTML = `
+          <div style="color: #f44;">
+            Failed to load files: ${err.message}<br>
+            <small>Check console for more details</small>
+          </div>
+        `;
+      }
+    }
+
+    function srtToVtt(data) {
+      return "WEBVTT\n\n" + data
+        .replace(/\r+/g, "")
+        .replace(/^\d+\s*$/gm, "")
+        .replace(/,/g, ".");
+    }
+
+    async function playVideo(filename, startTime = 0) {
+      const player = document.getElementById("player");
+      const videoUrl = baseUrl + filename;
+      const srtUrl = baseUrl + filename.replace(/\.[^.]+$/, ".srt");
+
+      console.log('Playing video:', videoUrl);
+
+      player.innerHTML = `
+        <video controls autoplay>
+          <source src="${videoUrl}" type="video/mp4">
+        </video>
+      `;
+
+      const video = player.querySelector("video");
+      
+      // Set start time if resuming
+      if (startTime > 0) {
+        video.currentTime = startTime;
+      }
+
+      // Track progress every 30 seconds
+      let progressInterval;
+      
+      video.onloadedmetadata = () => {
+        progressInterval = setInterval(() => {
+          if (!video.paused && video.duration > 0) {
+            saveWatchProgress(filename, video.currentTime, video.duration);
+          }
+        }, 30000); // Save every 30 seconds
+      };
+
+      // Save progress when video ends or is paused for a while
+      video.onpause = () => {
+        if (video.duration > 0) {
+          saveWatchProgress(filename, video.currentTime, video.duration);
+        }
+      };
+
+      video.onended = () => {
+        if (progressInterval) {
+          clearInterval(progressInterval);
+        }
+        // Remove from continue watching when finished
+        const progress = getWatchProgress();
+        delete progress[filename];
+        localStorage.setItem('watchProgress', JSON.stringify(progress));
+        updateContinueWatching();
+        loadFiles(); // Refresh to update progress bars
+      };
+
+      // Save progress when user seeks
+      video.onseeked = () => {
+        if (video.duration > 0) {
+          saveWatchProgress(filename, video.currentTime, video.duration);
+        }
+      };
+
+      // Load subtitles
+      try {
+        const res = await fetch(srtUrl);
+        if (res.ok) {
+          const srtText = await res.text();
+          const vttBlob = new Blob([srtToVtt(srtText)], { type: "text/vtt" });
+          const vttUrl = URL.createObjectURL(vttBlob);
+
+          const track = document.createElement("track");
+          track.kind = "subtitles";
+          track.label = "Subtitles";
+          track.srclang = "en";
+          track.src = vttUrl;
+          track.default = true;
+          video.appendChild(track);
+        }
+      } catch (err) {
+        console.warn("No subtitles found for " + filename);
+      }
+    }
+
+    // Initialize
+    loadFiles();
+  </script>
 </body>
 </html>
